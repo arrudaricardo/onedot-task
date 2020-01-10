@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, forwardRef} from 'react'
+import React, { useState, useContext, useEffect, forwardRef, createRef } from 'react'
 import MaterialTable, { Column } from 'material-table';
 import { Context, ContextProps } from './Store'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -27,48 +27,27 @@ interface Row {
   birthCity: number;
 }
 
-interface TableState {
-  columns: Array<Column<Row>>;
-  data: Row[];
-}
-
 export default function Table() {
   const classes = useStyles();
   const { state, dispatch } = useContext<ContextProps>(Context);
   const [table, setTable] = useState(Object.keys(state)[0]);
 
+  let tableRef: React.RefObject<any> = createRef()
 
   const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     setTable(event.target.value as string);
   };
 
-  const tableKeys = Object.keys(state[table].values)
+  let data = state[table].data
+  let columns = state[table].columns
 
+  useEffect(() => {
+   data = state[table].data
+   columns = state[table].columns
+   console.log(data)
+   tableRef.current && tableRef.current.onQueryChange()
 
-
-   const keyValue = tableKeys.map( k => state[table].values[k].map(e => ({[k]: e}) ))
-
-
-   const getTableData = ():any => {
-     let res:any = []
-     keyValue.forEach(arr =>{
-       arr.forEach( (el, idx) => {
-         res[idx] = {...res[idx], ...el}
-       })
-     } )
-     return res
-   }
-
-   let tableData = getTableData()
-
-   useEffect(()=> {
-     tableData = getTableData();
-
-   },[table])
-
-   console.log(keyValue)
-   console.log(tableData)
-   
+  },[state, table])
 
   return (
     <div>
@@ -87,12 +66,27 @@ export default function Table() {
         </Select>
       </FormControl>
 
-    <MaterialTable
-          title={table}
-          columns={ tableKeys.map( k => ({title: k, field: k}))  }
-          data={tableData}
+      <MaterialTable
+        tableRef={tableRef}
+        title={table}
+        columns={columns}
+        data={query => 
+          new Promise((resolve, rejects) => {
+            resolve({data, page: 0, totalCount: 0})
+          })
+        }
+
+        editable={{
+          onRowAdd: newData =>
+            new Promise(resolve => {
+              setTimeout(() => {
+                dispatch({type:'ADDROW',value: {table, newData}})
+                resolve();
+              }, 600);
+            })
+          }}
         />
     </div>
-  );
-}
-
+    );
+  }
+  

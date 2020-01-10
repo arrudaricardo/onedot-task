@@ -1,19 +1,22 @@
 import React, { createContext, useReducer, Reducer, Dispatch } from 'react'
 import reducer from './reducer'
+import {Column} from 'material-table';
 
 interface Actions {
   type: string;
   value: any;
 }
 
-interface IndexRow {
-  [index: string]: string[]
+
+export interface Row {
+  [field: string]: string | number
 }
 
 export interface Table {
   [name: string]: {
     errors: string | null;
-    values: IndexRow;
+    columns: Array<Column<Row>>;
+    data: Row[];
   }
 }
 
@@ -25,11 +28,11 @@ export interface ContextProps {
 const initialState: Table = {
   'Original Dataset': {
     errors: null,
-    values: {
-      'Product': [ 'Apple iPhone 6s', 'Samsung Galaxy S8', 'Huawei P9'],
-      'Color': [ 'Stonegrey', 'Midnight Black', 'Mystic Silver'],
-      'Price': [ 'CHF 769', 'CHF 569', 'CHF 272'],
-    }
+    columns: [{ title: 'Product', field: 'Product' }, { title: 'Color', field: 'Color' }, { title: 'Price', field: 'Price' }],
+    data: [{ Product: 'Apple iPhone 6s', Color: 'Stonegrey', Price: 'CHF 769' },
+    { Product: 'Samsung Galaxy S8', Color: 'Midnight Black', Price: 'CHF 569' },
+    { Product: 'Huawei P9 Mystic ', Color: 'Silver ', Price: 'CHF 272' }
+    ]
   }
 }
 
