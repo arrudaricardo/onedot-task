@@ -47,40 +47,40 @@ export default function Table() {
   let columns = state[table].columns
 
   useEffect(() => {
-   data = state[table].data
-   columns = state[table].columns
-   console.log(data)
-   tableRef.current && tableRef.current.onQueryChange()
+    data = state[table].data
+    columns = state[table].columns
+    console.log(data)
+    tableRef.current && tableRef.current.onQueryChange()
 
-  },[state, table])
+  }, [state, table])
 
   return (
     <div>
       <div className={classes.inputSection}>
-      <FormControl className={classes.formControl}>
-        <InputLabel id="dictionary">Dictionaries</InputLabel>
-        <Select
-          labelId="Dictionary"
-          id="dic-select"
-          value={table}
-          onChange={handleChange}
-        >
-          {Object.keys(state).map(name =>
-            <MenuItem key={name} value={name}>{name}</MenuItem>
-          )}
+        <FormControl className={classes.formControl}>
+          <InputLabel id="dictionary">Dictionaries</InputLabel>
+          <Select
+            labelId="Dictionary"
+            id="dic-select"
+            value={table}
+            onChange={handleChange}
+          >
+            {Object.keys(state).map(name =>
+              <MenuItem key={name} value={name}>{name}</MenuItem>
+            )}
 
-        </Select>
-      </FormControl>
-      <CreateDictModal setTable={setTable} />
+          </Select>
+        </FormControl>
+        <CreateDictModal setTable={setTable} />
       </div>
 
       <MaterialTable
         tableRef={tableRef}
         title={table}
         columns={columns}
-        data={query => 
+        data={query =>
           new Promise((resolve, rejects) => {
-            resolve({data, page: 0, totalCount: 0})
+            resolve({ data, page: 0, totalCount: 0 })
           })
         }
 
@@ -88,13 +88,49 @@ export default function Table() {
           onRowAdd: newData =>
             new Promise(resolve => {
               setTimeout(() => {
-                dispatch({type:'ADDROW',value: {table, newData}})
+                dispatch({ type: 'ADDROW', value: { table, newData } })
                 resolve();
               }, 600);
+            }),
+          onRowUpdate: (newData, oldData) =>
+            new Promise((resolve) => {
+              setTimeout(() => {
+
+                let data = state[table].data
+                const index = data.indexOf(oldData!);
+
+                type TUpdate = {
+                  table: string;
+                  newData: any;
+                  index: number
+                }
+                let value: TUpdate = {
+                  table, newData, index
+                }
+
+                dispatch({ type: 'UPDATEROW', value })
+
+                resolve();
+              }, 1000);
+            }),
+          onRowDelete: oldData =>
+            new Promise((resolve, reject) => {
+              setTimeout(() => {
+                  let data = state[table].data;
+                  const index = data.indexOf(oldData);
+                let value = {
+                  table,
+                  index
+                }
+
+                dispatch({ type: 'DELETEROW', value })
+                
+                resolve();
+              }, 1000);
             })
-          }}
-        />
+        }}
+      />
     </div>
-    );
-  }
-  
+  );
+}
+
