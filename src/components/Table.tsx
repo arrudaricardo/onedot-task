@@ -7,7 +7,8 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import CreateDictModal from './CreateDictModal'
-import {duplicatesValidation, forksValidation, cyclesValidation, chainsValidation} from '../util/validation_helper'
+import {checkAllValidation} from '../util/validation_helper'
+import Alert from './Alert'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -25,17 +26,13 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-interface Row {
-  name: string;
-  surname: string;
-  birthYear: number;
-  birthCity: number;
-}
 
 export default function Table() {
   const classes = useStyles();
   const { state, dispatch } = useContext<ContextProps>(Context);
   const [table, setTable] = useState(Object.keys(state)[0]);
+  const [invalidIndexs, setInvalidIndexs] = useState<number[] | []>([])
+  const [error, setError] = useState<string>('')
 
   let tableRef: React.RefObject<any> = createRef()
 
@@ -49,17 +46,16 @@ export default function Table() {
   useEffect(() => {
     data = state[table].data
     columns = state[table].columns
-    console.log(data)
+
+    let validation = checkAllValidation(state[table])
+    setError(validation.error);
+    setInvalidIndexs(validation.indexes)
+
+    //refresh table component
     tableRef.current && tableRef.current.onQueryChange()
 
   }, [state, table])
 
-  console.log('duplicated validation',duplicatesValidation(state[table]))
-  console.log('fork validation',forksValidation(state[table]))
-  console.log('chain validation',chainsValidation(state[table]))
-  console.log('cycle validation',cyclesValidation(state[table]))
-
-  
 
   return (
     <div>
@@ -79,10 +75,10 @@ export default function Table() {
           </Select>
         </FormControl>
         <CreateDictModal setTable={setTable} />
+        <Alert message={error}/>
       </div>
 
       <MaterialTable
-        options={{showTitle: false, search:false, paging:false }}
         tableRef={tableRef}
         title={table}
         columns={columns}
@@ -107,6 +103,7 @@ export default function Table() {
                 let data = state[table].data
                 const index = data.indexOf(oldData!);
 
+
                 type TUpdate = {
                   table: string;
                   newData: any;
@@ -124,18 +121,26 @@ export default function Table() {
           onRowDelete: oldData =>
             new Promise((resolve, reject) => {
               setTimeout(() => {
-                  let data = state[table].data;
-                  const index = data.indexOf(oldData);
+                let data = state[table].data;
+                const index = data.indexOf(oldData);
                 let value = {
                   table,
                   index
                 }
 
                 dispatch({ type: 'DELETEROW', value })
-                
+
                 resolve();
               }, 1000);
             })
+        }}
+        options={{
+       showTitle: false,
+       search: false,
+       paging: false,
+          rowStyle: rowData => ({
+            backgroundColor: (invalidIndexs.some(e => e === rowData.tableData.id)) ? '#e8051f' : '#FFF'
+})
         }}
       />
     </div>

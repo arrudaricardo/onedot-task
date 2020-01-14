@@ -80,3 +80,35 @@ export function chainsValidation(table: TableData): Array<number>[] {
   }
   return invalidByIndex
 }
+
+
+
+type Ivalidation = {
+  error: string;
+  indexes: number[]
+}
+
+// severity scale Cycles > Chains > Fork > Duplicates
+export function checkAllValidation(table: TableData): Ivalidation{
+  const flatArray = (arr: Array<any>) =>  Array.prototype.concat.apply([], arr);
+  let invalidCycle = cyclesValidation(table)
+  if (invalidCycle.length === 0){
+    let invalidChains =  chainsValidation(table)
+    if (invalidChains.length === 0){
+      let invalidForks = forksValidation(table)
+      if(invalidForks.length ===0){
+        let invalidDuplicated = duplicatesValidation(table)
+        if (invalidDuplicated.length > 0) {
+          return {error:"Duplicates. Duplicate Domain - Range pairs", indexes: flatArray(invalidDuplicated)}
+        }
+      }else{
+        return {error:"Forks: Duplicate Domains with different Ranges", indexes: flatArray(invalidForks)}
+       }
+    }else{
+      return {error:"Chain: a value in Range column also appears in Domain column of another entry", indexes: flatArray(invalidChains)}
+    }
+  }else {
+   return {error:"Cycle: inconsistent transformation", indexes: flatArray(invalidCycle)}
+  }
+  return {error:"", indexes: []} 
+}
