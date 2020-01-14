@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
 import Table from './components/Table'
 import Store from './components/Store'
 import CssBaseline from '@material-ui/core/CssBaseline';
-
 import Container from '@material-ui/core/Container';
 
 
@@ -16,7 +15,7 @@ const App: React.FC = () => {
       <Router>
         <Switch>
           <Route path='/'>
-            <Container maxWidth="lg">
+            <Container style={{padding: '5em'}} maxWidth="lg">
               <Table />
             </Container>
           </Route>
