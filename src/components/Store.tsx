@@ -1,6 +1,7 @@
 import React, { createContext, useReducer, Reducer, Dispatch } from 'react'
 import reducer from './reducer'
 import {Column} from 'material-table';
+import Table from './Table';
 
 interface Actions {
   type: string;
@@ -67,13 +68,26 @@ export const initialState: Table = {
            { Domain: 'Midnight Blue', Range: 'Dark Blue'}
     ]
   }
+  
 }
 
 
+
+
+
 export const Context = createContext({} as ContextProps)
+  let localStorage: Table | undefined
+  let store = window.localStorage.getItem('store') 
+  if (!store){
+    localStorage = initialState
+  }else{
+    localStorage = JSON.parse(store)
+  }
 
 export default function Store(props: any) {
-  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const [state, dispatch] = useReducer(reducer,localStorage!);
+
 
   return (
     <Context.Provider value={{ state, dispatch }}>

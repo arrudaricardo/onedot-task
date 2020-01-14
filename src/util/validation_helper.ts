@@ -96,7 +96,7 @@ export function checkAllValidation(table: TableData): Ivalidation{
     let invalidChains =  chainsValidation(table)
     if (invalidChains.length === 0){
       let invalidForks = forksValidation(table)
-      if(invalidForks.length ===0){
+      if(invalidForks.length === 0){
         let invalidDuplicated = duplicatesValidation(table)
         if (invalidDuplicated.length > 0) {
           return {error:"Duplicates. Duplicate Domain - Range pairs", indexes: flatArray(invalidDuplicated)}

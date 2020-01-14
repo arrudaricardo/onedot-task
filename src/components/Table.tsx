@@ -7,8 +7,10 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import CreateDictModal from './CreateDictModal'
-import {checkAllValidation} from '../util/validation_helper'
+import { checkAllValidation } from '../util/validation_helper'
 import Alert from './Alert'
+import DeleteIcon from "@material-ui/icons/Delete";
+import IconButton from "@material-ui/core/IconButton";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -54,7 +56,26 @@ export default function Table() {
     //refresh table component
     tableRef.current && tableRef.current.onQueryChange()
 
+    //save to local storage
+    window.localStorage.setItem('store', JSON.stringify(state))
+
   }, [state, table])
+
+  const emptyTable = {
+    error: '',
+    columns: [{ title: 'Domain', field: 'Domain' }, { title: 'Range', field: 'Range' }],
+    data: []
+  }
+
+  const handleDeleting = () => {
+      dispatch({ type: 'DELETEDICT', value: { table } })
+      if (Object.keys(state)[0] === undefined){
+          dispatch({type:'CREATE', value: ""})
+      }else {
+        setTable(Object.keys(state)[0])
+      }
+      
+  }
 
 
   return (
@@ -75,7 +96,14 @@ export default function Table() {
           </Select>
         </FormControl>
         <CreateDictModal setTable={setTable} />
-        <Alert message={error}/>
+
+        <IconButton
+          onClick={handleDeleting}
+          aria-label="delete"
+        >
+          <DeleteIcon />
+        </IconButton>
+        <Alert message={error} />
       </div>
 
       <MaterialTable
@@ -135,12 +163,12 @@ export default function Table() {
             })
         }}
         options={{
-       showTitle: false,
-       search: false,
-       paging: false,
+          showTitle: false,
+          search: false,
+          paging: false,
           rowStyle: rowData => ({
             backgroundColor: (invalidIndexs.some(e => e === rowData.tableData.id)) ? '#e8051f' : '#FFF'
-})
+          })
         }}
       />
     </div>

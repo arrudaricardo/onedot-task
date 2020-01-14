@@ -19,16 +19,23 @@ export default function reducer(state: object, action: any): Table {
       const newData: Row = action.value.newData
       oldState[table].data.push(newData)
       return oldState 
+      case 'DELETEDICT':
+     if (action.value.table === 'Valid Dictionary sample') {
+          return oldState
+        }
+        delete oldState[action.value.table]
+        return oldState
 
       case 'CREATE':
         const name = action.value
         oldState[name] = {
           errors: null,
-          columns: [{ title: 'Product', field: 'Product' }, { title: 'Color', field: 'Color' }, { title: 'Price', field: 'Price' }],
+          columns: [{ title: 'Domain', field: 'Domain' }, { title: 'Range', field: 'Range' }],
           data: []
         }
         return oldState
       case 'DELETEROW':
+   
 
         oldState[action.value.table].data.splice(action.value.index, 1)
 
