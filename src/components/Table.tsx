@@ -4,10 +4,10 @@ import { Context, ContextProps } from './Store'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
-import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import CreateDictModal from './CreateDictModal'
+import {duplicatesValidation, forksValidation, cyclesValidation, chainsValidation} from '../util/validation_helper'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -54,6 +54,13 @@ export default function Table() {
 
   }, [state, table])
 
+  console.log('duplicated validation',duplicatesValidation(state[table]))
+  console.log('fork validation',forksValidation(state[table]))
+  console.log('chain validation',chainsValidation(state[table]))
+  console.log('cycle validation',cyclesValidation(state[table]))
+
+  
+
   return (
     <div>
       <div className={classes.inputSection}>
@@ -75,6 +82,7 @@ export default function Table() {
       </div>
 
       <MaterialTable
+        options={{showTitle: false, search:false, paging:false }}
         tableRef={tableRef}
         title={table}
         columns={columns}
